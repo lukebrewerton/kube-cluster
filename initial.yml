@@ -1,0 +1,16 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: create the Ubuntu user
+      user: name=ubuntu append=yes state=present createhome=yes shell=/bin/bash
+      
+    - name: Allow Ubuntu user to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'ubuntu ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: Setup SSH key for Ubuntu user
+      authorized_key: user=ubuntu key="{{item}}"
+      with_file:
+        - ~/.ssh/id_rsa.pub
